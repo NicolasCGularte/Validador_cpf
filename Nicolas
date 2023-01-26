@@ -113,3 +113,48 @@ print(data_str)
 
     
     
+--------------------------------------------------------------------------------------------------------
+
+
+
+import os
+from datetime import datetime
+
+def valida_cpf(cpf):
+    cpf = ''.join(filter(str.isdigit, cpf)) # remove caracteres não numéricos
+    if len(cpf) != 11: # verifica se o CPF tem 11 dígitos
+        raise ValueError("CPF deve conter 11 dígitos")
+    if cpf in ['00000000000', '11111111111', '22222222222', '33333333333', '44444444444', '55555555555', '66666666666', '77777777777', '88888888888', '99999999999']:
+        raise ValueError("CPF inválido")
+    dig1 = 0
+    dig2 = 0
+    for i in range(9):
+        dig1 += int(cpf[i]) * (10 - i)
+        dig2 += int(cpf[i]) * (11 - i)
+    digV1 = (dig1 % 11) % 10
+    digV2 = (dig2 % 11) % 10
+    if int(cpf[9]) != digV1 or int(cpf[10]) != digV2:
+        raise ValueError("Dígitos verificadores inválidos")
+    return True
+
+def save_resultado(cpf):
+    with open("resultado.txt", "a") as arquivo:
+        arquivo.write("\nData e Hora: {}\n".format(datetime.now()))
+        arquivo.write("CPF: {}\n".format(cpf))
+        arquivo.write("Result: Valid\n")
+
+def save_erro(cpf, error):
+    with open("log.txt", "a") as arquivo:
+        arquivo.write("\nData e Hora: {}\n".format(datetime.now()))
+        arquivo.write("CPF: {}\n".format(cpf))
+        arquivo.write("Resultado: Inválido\n")
+
+if __name__ == '__main__':
+    try:
+        cpf = input("Informe o CPF: ")
+        result = valida_cpf(cpf)
+        save_resultado(cpf)
+        print("CPF válido")
+    except ValueError as e:
+        save_erro(cpf, e)
+        print(e) 
