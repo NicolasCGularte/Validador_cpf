@@ -1,68 +1,64 @@
-import datetime
+while True:
+    cpf = input('Entre com o seu cpf: ')
 
-class ValidaCpf:
-    def __init__(self, cpf):
-        self.cpf = cpf.replace('.', '').replace('-', '')
-    
-    def cpf_valido(self):
-        if len(self.cpf) != 11 or not self.cpf.isnumeric() or self.numeros_iguai():
-            return False
-        numDV1 = self.calcula_DV1()
-        numDV2 = self.calcula_DV2(numDV1)
-        if int(numDV1) == int(self.cpf[9]) and int(numDV2) == int(self.cpf[10]):
-            return True
+    # Remove os pontos e traços do cpf digitado pelo usuário
+    if '.' in cpf or '-' in cpf:
+        cpf = cpf.replace('.', '')
+        cpf = cpf.replace('-', '')
 
-    def numeros_iguai(self):
-        numIG = 0
-        for i in range(0, 11):
-            numIG += int(self.cpf[i])
-        if int(self.cpf[0]) == numIG / 11:
-            return True
-        return False
-    
-    def calcula_DV1(self):
-        numDV1 = 0
-        for i in range(1, 10):
-            numDV1 = numDV1 + int(self.cpf[i-1:i]) * i
-        numDV1 = numDV1 % 11
-        if (numDV1 == 10):
-            numDV1 = 0
-        return numDV1
-    
-    def calcula_DV2(self, numDV1):
-        numDV2 = 0
-        for i in range(2, 11):
-            numDV2 = numDV2 + int(self.cpf[i-1:i]) * (i-1)
-        numDV2 = numDV2 % 11
-        if (numDV2 == 10):
-            numDV2 = 0
-        return numDV2
+        # Teste para validar se o cpf do usuário é do tipo numérico e possui 11 dígitos (padrão do cpf)
+        while not cpf.isnumeric() or len(cpf) != 11:
+            cpf = (input('Erro! Digite um valor correto: '))
 
-class EntraCpf:
-    def __init__(self):
-        self.valid_file = open("valid_cpf.txt", "a")
-        self.invalid_file = open("invalid_cpf.txt", "a")
-        self.error_file = open("errors.txt", "a")
+    # Teste para descobrir o penúltimo dígito do cpf do usuário
+    VerificaDigitos = cpf[:9]
 
-    def verifica_cpf(self):
-        try:
-            while True:
-                print('Informe o CPF')
-                cpf = str(input())
-                Validacao = ValidaCpf(cpf)
-                if Validacao.cpf_valido():
-                    print('CPF é válido.')
-                    self.valid_file.write(cpf + "\n")
-                else:
-                    print('CPF inválido')
-                    self.invalid_file.write(cpf + "\n")
-        except (EOFError, KeyboardInterrupt):
-            print("Programa finalizado.")
-        except Exception as e:
-            self.error_file.write("Error: " + str(e) + "\n")
-            self.error_file.write("Data e hora: " + str(datetime.datetime.now()) + "\n")
-            print("Error:", str(e))
-        finally:
-            self.valid_file.close()
-            self.invalid_file.close()
-            self.error_file.close()
+    # validação do penúltimo número do cpf
+    Validacao1 = 10
+    Somadig1 = 0
+
+    # função que multiplica os 9 primeiros dígitos de um cpf de forma decrescente de 10 até 2
+    for Digito1 in VerificaDigitos:
+        resultado = int(Digito1)*Validacao1
+        Validacao1 -= 1
+        Somadig1 += resultado
+
+    resto = Somadig1 % 11
+
+    # Validação do penúltimo dígito do cpf do usuário
+    if resto < 2:
+        numero_valido = 0
+    else:
+        Digitoreal = 11
+        Digitocerto = Digitoreal - resto
+        numero_valido = Digitocerto
+
+    # constantes da validação do último número do cpf
+    Validacao2 = 11
+    Somadig2 = 0
+
+    cpfdig10 = VerificaDigitos + str(numero_valido)
+    # função que multiplica os 9 primeiros dígitos de um cpf de forma decrescente de 10 até 2
+    for Digito2 in cpfdig10:
+        resultado = int(Digito2)*Validacao2
+        Validacao2 -= 1
+        Somadig2 += resultado
+
+    resto_2 = Somadig2 % 11
+
+    # Validação do último dígito do cpf do usuário
+    if resto_2 < 2:
+        valida_segundo_numero = 0
+    else:
+        segundo_Digitoreal = 11
+        segundo_Digitocerto = segundo_Digitoreal - resto_2
+        valida_segundo_numero = segundo_Digitocerto
+
+    cpf_valido = cpf[:9] + str(numero_valido) + \
+        str(valida_segundo_numero)
+
+    if cpf_valido == cpf:
+        print('cpf VÁLIDO.')
+    else:
+        print('cpf INVÁLIDO.')
+    break
